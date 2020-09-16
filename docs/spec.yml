@@ -1,0 +1,431 @@
+openapi: 3.0.0
+info:
+  title: Conduit
+  description: Conduit API
+  version: 0.0.1
+servers:
+  - url: "http://localhost:8000/api/v1"
+paths:
+  /users:
+    post:
+      tags: [Auth]
+      description: "Register user"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/registerUserRequest'
+      responses:
+        201:
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthSuccessResponse'
+  /users/login:
+    post:
+      tags: [Auth]
+      description: "Login"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/loginUserRequest'
+      responses:
+        201:
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthSuccessResponse'
+  /user:
+    get:
+      tags: [User]
+      description: Get Current User
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: "Get Current User"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+    patch:
+      tags: [User]
+      description: Update user data
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: alice@example.
+                username:
+                  type: string
+                  example: alice
+                bio:
+                  type: string
+                image:
+                  type: string
+                password:
+                  type: string
+      responses:
+        200:
+          description: "Updated user data"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+  /user/following/{username}:
+    put:
+      tags: [User]
+      description: "Follow user"
+      parameters:
+        - in: path
+          name: username
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      responses:
+        204:
+          description: "Follow"
+    delete:
+      tags: [User]
+      description: "Unfollow user"
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: username
+          required: true
+          schema:
+            type: string
+      responses:
+        204:
+          description: "Unfollow"
+  /users/{username}:
+    get:
+      tags: [User]
+      description: "Get user profile"
+      parameters:
+        - in: path
+          name: username
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: "Updated user data"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+  /articles:
+    get:
+      tags: [Article]
+      description: "Get articles"
+      parameters:
+        - in: query
+          name: tag
+          schema:
+            type: string
+        - in: query
+          name: author
+          schema:
+            type: string
+        - in: query
+          name: favorited
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 20
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            default: 0
+      responses:
+        200:
+          description: "Get articles"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Article'
+    post:
+      tags: [Article]
+      description: 'Create article'
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                body:
+                  type: string
+                tags:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        201:
+          description: 'Created article'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Article'
+  /articles/feed:
+    get:
+      tags: [Article]
+      description: "Get articles created by followed users"
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 20
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            default: 0
+      responses:
+        200:
+          description: "Get articles"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Article'
+  /articles/{id}:
+    get:
+      tags: [Article]
+      description: "Get article by ID"
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: "Article"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Article'
+        404:
+          description: "Not Found"
+    patch:
+      tags: [Article]
+      description: 'Update article'
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                body:
+                  type: string
+                tags:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        201:
+          description: 'Created article'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Article'
+    delete:
+      tags: [Article]
+      description: 'Delete article'
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      responses:
+        201:
+          description: "Deleted article"
+  /articles/{id}/comments:
+    get:
+      tags: [Comment]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: "Get comments"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Comment'
+    post:
+      tags: [Comment]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      responses:
+        201:
+          description: "Created comment"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  created_at:
+                    type: string
+                    format: date-time
+                  updated_at:
+                    type: string
+                    format: date-time
+                  body:
+                    type: string
+components:
+  schemas:
+    registerUserRequest:
+      type: object
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+    loginUserRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+    AuthSuccessResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          example: JWT
+    User:
+      type: object
+      properties:
+        email:
+          type: string
+          example: alice@example.
+        username:
+          type: string
+          example: alice
+        bio:
+          type: string
+        image:
+          type: string
+    Profile:
+      type: object
+      properties:
+        username:
+          type: string
+        bio:
+          type: string
+        image:
+          type: string
+        following:
+          type: boolean
+    Article:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        body:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+    Comment:
+      type: object
+      properties:
+        id:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        body:
+          type: string
+        author:
+          type: object
+          properties:
+            username:
+              type: string
+            bio:
+              type: string
+            image:
+              type: string
+            following:
+              type: boolean
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
