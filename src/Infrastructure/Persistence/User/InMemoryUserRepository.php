@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Infrastructure\Persistence\User;
 
 use App\Domain\User\User;
+use App\Domain\User\Username;
 use App\Domain\User\UserNotFoundException;
 use App\Domain\User\UserRepository;
 
@@ -12,7 +13,7 @@ class InMemoryUserRepository implements UserRepository
     /**
      * @var User[]
      */
-    private $users;
+    private array $users;
 
     /**
      * InMemoryUserRepository constructor.
@@ -22,31 +23,46 @@ class InMemoryUserRepository implements UserRepository
     public function __construct(array $users = null)
     {
         $this->users = $users ?? [
-            1 => new User(1, 'bill.gates', 'Bill', 'Gates'),
-            2 => new User(2, 'steve.jobs', 'Steve', 'Jobs'),
-            3 => new User(3, 'mark.zuckerberg', 'Mark', 'Zuckerberg'),
-            4 => new User(4, 'evan.spiegel', 'Evan', 'Spiegel'),
-            5 => new User(5, 'jack.dorsey', 'Jack', 'Dorsey'),
-        ];
+                new User('1', new Username('bill'), 'Bill', 'bill@example.com', password_hash('password', PASSWORD_ARGON2ID)),
+                new User('2', new Username('steve'), 'Steve', 'steve@example.com', password_hash('password', PASSWORD_ARGON2ID)),
+                new User('3', new Username('mark'), 'Mark', 'mark@example.com', password_hash('password', PASSWORD_ARGON2ID)),
+            ];
     }
 
     /**
      * {@inheritdoc}
      */
-    public function findAll(): array
+    public function findUserOfId(string $id): User
     {
-        return array_values($this->users);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function findUserOfId(int $id): User
-    {
-        if (!isset($this->users[$id])) {
+        $result = null;
+        foreach ($this->users as $user) {
+            if ($user->getId() === $id) {
+                $result = $user;
+            }
+        }
+        if ($result === null) {
             throw new UserNotFoundException();
         }
+        return $result;
+    }
 
-        return $this->users[$id];
+    /**
+     * @param Username $username
+     * @return User
+     * @throws UserNotFoundException
+     */
+    public function findByUsername(Username $username): User
+    {
+        $result = null;
+        $value  = $username->getValue();
+        foreach ($this->users as $user) {
+            if ($user->getUsername()->getValue() === $value) {
+                $result = $user;
+            }
+        }
+        if ($result === null) {
+            throw new UserNotFoundException();
+        }
+        return $result;
     }
 }
