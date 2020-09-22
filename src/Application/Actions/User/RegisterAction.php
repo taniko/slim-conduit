@@ -12,6 +12,7 @@ use App\Domain\User\DuplicateEmailException;
 use App\Domain\User\DuplicateUsernameException;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Log\LoggerInterface;
+use Valitron\Validator;
 
 class RegisterAction extends Action
 {
@@ -34,8 +35,16 @@ class RegisterAction extends Action
 
     protected function action(): Response
     {
+        $body = $this->request->getParsedBody();
+        $v    = new Validator($body);
+        $v->rules([
+            'email'     => [['email']],
+            'lengthMin' => [['username', 4], ['name', 1], ['password', 8]],
+        ]);
+        if (!$v->validate()) {
+            return $this->respondWithError($v->errors(), 400);
+        }
         try {
-            $body = $this->request->getParsedBody();
             $data = $this->userApplicationService->register(new UserRegisterCommand(
                 $body['username'],
                 $body['name'],
