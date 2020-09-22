@@ -13,6 +13,7 @@ use App\Domain\User\UserFactoryInterface;
 use App\Domain\User\Username;
 use App\Domain\User\UserRepository;
 use Firebase\JWT\JWT;
+use LogicException;
 
 class UserApplicationService
 {
@@ -60,10 +61,10 @@ class UserApplicationService
             } elseif ($user->getUsername()->getValue() === $foundUser->getUsername()->getValue()) {
                 throw new DuplicateUsernameException("すでにユーザ名は使用されています");
             } else {
-                throw new \LogicException();
+                throw new LogicException();
             }
         }
         $this->userRepository->save($user);
-        return new UserRegisterResult(JWT::encode(['id' => $user->getId()], getenv($_ENV['JWT_KEY'])));
+        return new UserRegisterResult(JWT::encode(['id' => $user->getId()], $_ENV['JWT_KEY']));
     }
 }
