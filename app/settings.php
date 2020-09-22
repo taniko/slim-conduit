@@ -4,6 +4,9 @@ declare(strict_types=1);
 use DI\ContainerBuilder;
 use Monolog\Logger;
 
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
+$dotenv->load();
+
 return function (ContainerBuilder $containerBuilder) {
     // Global Settings Object
     $containerBuilder->addDefinitions([

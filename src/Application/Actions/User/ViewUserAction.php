@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace App\Application\Actions\User;
 
+use App\Domain\User\Username;
+use App\Domain\User\UserNotFoundException;
 use Psr\Http\Message\ResponseInterface as Response;
 
 class ViewUserAction extends UserAction
@@ -12,11 +14,14 @@ class ViewUserAction extends UserAction
      */
     protected function action(): Response
     {
-        $userId = (int) $this->resolveArg('id');
-        $user = $this->userRepository->findUserOfId($userId);
-
-        $this->logger->info("User of id `${userId}` was viewed.");
-
+        try {
+            $username = new Username($this->resolveArg('username'));
+            $user     = $this->userRepository->findByUsername($username);
+        } catch (\InvalidArgumentException $exception) {
+            return $this->respondWithData([], 400);
+        } catch (UserNotFoundException $exception) {
+            return $this->respondWithData([], 404);
+        }
         return $this->respondWithData($user);
     }
 }

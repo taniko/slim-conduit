@@ -4,47 +4,46 @@ declare(strict_types=1);
 namespace App\Domain\User;
 
 use JsonSerializable;
+use Ramsey\Uuid\Uuid;
 
 class User implements JsonSerializable
 {
-    /**
-     * @var int|null
-     */
-    private $id;
+    private string $id;
+    private Username $username;
+    private string $email;
+    private string $password;
+    private string $name;
 
     /**
-     * @var string
+     * User constructor.
+     *
+     * @param string|null $id
+     * @param Username    $username
+     * @param string      $name
+     * @param string      $email
+     * @param string      $password
      */
-    private $username;
-
-    /**
-     * @var string
-     */
-    private $firstName;
-
-    /**
-     * @var string
-     */
-    private $lastName;
-
-    /**
-     * @param int|null  $id
-     * @param string    $username
-     * @param string    $firstName
-     * @param string    $lastName
-     */
-    public function __construct(?int $id, string $username, string $firstName, string $lastName)
+    public function __construct(?string $id, Username $username, string $name, string $email, string $password)
     {
-        $this->id = $id;
-        $this->username = strtolower($username);
-        $this->firstName = ucfirst($firstName);
-        $this->lastName = ucfirst($lastName);
+        $this->id       = $id ?? Uuid::uuid6()->toString();
+        $this->username = $username;
+        $this->name     = $name;
+        $this->email    = $email;
+        $this->password = $password;
     }
 
     /**
-     * @return int|null
+     * @param string $id
      */
-    public function getId(): ?int
+    public function setId(string $id)
+    {
+        $this->id = $id;
+    }
+
+    /**
+     * @return string
+     */
+    public function getId(): string
     {
         return $this->id;
     }
@@ -52,25 +51,33 @@ class User implements JsonSerializable
     /**
      * @return string
      */
-    public function getUsername(): string
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPassword(): string
+    {
+        return $this->password;
+    }
+
+    /**
+     * @return string
+     */
+    public function getEmail(): string
+    {
+        return $this->email;
+    }
+
+    /**
+     * @return Username
+     */
+    public function getUsername(): Username
     {
         return $this->username;
-    }
-
-    /**
-     * @return string
-     */
-    public function getFirstName(): string
-    {
-        return $this->firstName;
-    }
-
-    /**
-     * @return string
-     */
-    public function getLastName(): string
-    {
-        return $this->lastName;
     }
 
     /**
@@ -79,10 +86,8 @@ class User implements JsonSerializable
     public function jsonSerialize()
     {
         return [
-            'id' => $this->id,
             'username' => $this->username,
-            'firstName' => $this->firstName,
-            'lastName' => $this->lastName,
+            'name'     => $this->name,
         ];
     }
 }
