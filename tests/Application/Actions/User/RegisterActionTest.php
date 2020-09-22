@@ -4,11 +4,6 @@
 namespace Tests\Application\Actions\User;
 
 
-use App\Application\Actions\ActionPayload;
-use App\Domain\User\User;
-use App\Domain\User\Username;
-use App\Domain\User\UserRepository;
-use DI\Container;
 use Tests\TestCase;
 
 class RegisterActionTest extends TestCase
