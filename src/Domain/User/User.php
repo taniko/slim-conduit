@@ -33,6 +33,14 @@ class User implements JsonSerializable
     }
 
     /**
+     * @param string $id
+     */
+    public function setId(string $id)
+    {
+        $this->id = $id;
+    }
+
+    /**
      * @return string
      */
     public function getId(): string

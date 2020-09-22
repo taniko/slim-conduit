@@ -1,6 +1,10 @@
 <?php
 declare(strict_types=1);
 
+use App\Domain\Service\UserService;
+use App\Domain\User\UserFactoryInterface;
+use App\Domain\User\UserRepository;
+use App\Infrastructure\Persistence\User\InMemoryUserFactory;
 use DI\ContainerBuilder;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
@@ -10,11 +14,11 @@ use Psr\Log\LoggerInterface;
 
 return function (ContainerBuilder $containerBuilder) {
     $containerBuilder->addDefinitions([
-        LoggerInterface::class => function (ContainerInterface $c) {
+        LoggerInterface::class      => function (ContainerInterface $c) {
             $settings = $c->get('settings');
 
             $loggerSettings = $settings['logger'];
-            $logger = new Logger($loggerSettings['name']);
+            $logger         = new Logger($loggerSettings['name']);
 
             $processor = new UidProcessor();
             $logger->pushProcessor($processor);
@@ -23,6 +27,12 @@ return function (ContainerBuilder $containerBuilder) {
             $logger->pushHandler($handler);
 
             return $logger;
+        },
+        UserService::class          => function (ContainerInterface $container) {
+            return new UserService();
+        },
+        UserFactoryInterface::class => function (ContainerInterface $container) {
+            return new InMemoryUserFactory();
         },
     ]);
 };

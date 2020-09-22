@@ -50,9 +50,9 @@ abstract class Action
      */
     public function __invoke(Request $request, Response $response, $args): Response
     {
-        $this->request = $request;
+        $this->request  = $request;
         $this->response = $response;
-        $this->args = $args;
+        $this->args     = $args;
 
         try {
             return $this->action();
@@ -84,7 +84,7 @@ abstract class Action
     }
 
     /**
-     * @param  string $name
+     * @param string $name
      * @return mixed
      * @throws HttpBadRequestException
      */
@@ -98,13 +98,19 @@ abstract class Action
     }
 
     /**
-     * @param  array|object|null $data
+     * @param array|object|null $data
      * @return Response
      */
     protected function respondWithData($data = null, int $statusCode = 200): Response
     {
         $payload = new ActionPayload($statusCode, $data);
 
+        return $this->respond($payload);
+    }
+
+    protected function respondWithError($error, int $statusCode): Response
+    {
+        $payload = new ActionPayload($statusCode, null, $error);
         return $this->respond($payload);
     }
 
@@ -118,7 +124,7 @@ abstract class Action
         $this->response->getBody()->write($json);
 
         return $this->response
-                    ->withHeader('Content-Type', 'application/json')
-                    ->withStatus($payload->getStatusCode());
+            ->withHeader('Content-Type', 'application/json')
+            ->withStatus($payload->getStatusCode());
     }
 }

@@ -65,4 +65,34 @@ class InMemoryUserRepository implements UserRepository
         }
         return $result;
     }
+
+    public function findByUsernameOrEmail(User $user): ?User
+    {
+        $result = null;
+        foreach ($this->users as $item) {
+            if ($user->getEmail() === $item->getEmail()
+                || $user->getUsername()->getValue() === $item->getUsername()->getValue()
+            ) {
+                $result = $item;
+            }
+        }
+        return $result;
+    }
+
+    public function save(User $user)
+    {
+        $exists = false;
+        foreach ($this->users as $i => $u) {
+            if ($user->getEmail() === $u->getEmail()
+                || $user->getUsername()->getValue() === $u->getUsername()->getValue()
+            ) {
+                $exists          = true;
+                $this->users[$i] = $user;
+                break;
+            }
+        }
+        if (!$exists) {
+            $this->users[] = $user;
+        }
+    }
 }

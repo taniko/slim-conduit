@@ -18,4 +18,15 @@ interface UserRepository
      * @throws UserNotFoundException
      */
     public function findByUsername(Username $username): User;
+
+    /**
+     * @param User $user
+     * @return User|null
+     */
+    public function findByUsernameOrEmail(User $user): ?User;
+
+    /**
+     * @param User $user
+     */
+    public function save(User  $user);
 }
