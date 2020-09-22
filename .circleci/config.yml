@@ -6,6 +6,7 @@ jobs:
     working_directory: ~/app
     steps:
       - checkout
+      - run: echo 'JWT_KEY=jwt_key' > .env
       - run: sudo docker-php-ext-install zip
       - restore_cache:
           keys:
