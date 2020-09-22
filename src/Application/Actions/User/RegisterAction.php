@@ -8,12 +8,10 @@ use App\Application\Actions\Action;
 use App\Application\Response\User\RegisterResponse;
 use App\Application\Usecase\User\Register\UserRegisterCommand;
 use App\Application\Usecase\User\UserApplicationService;
-use App\Domain\DomainException\DomainRecordNotFoundException;
 use App\Domain\User\DuplicateEmailException;
 use App\Domain\User\DuplicateUsernameException;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Log\LoggerInterface;
-use Slim\Exception\HttpBadRequestException;
 
 class RegisterAction extends Action
 {
