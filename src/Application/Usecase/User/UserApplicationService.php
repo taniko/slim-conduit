@@ -4,6 +4,8 @@
 namespace App\Application\Usecase\User;
 
 
+use App\Application\Usecase\User\Login\UserLoginCommand;
+use App\Application\Usecase\User\Login\UserLoginResult;
 use App\Application\Usecase\User\Register\UserRegisterCommand;
 use App\Application\Usecase\User\Register\UserRegisterResult;
 use App\Domain\Service\UserService;
@@ -66,5 +68,13 @@ class UserApplicationService
         }
         $this->userRepository->save($user);
         return new UserRegisterResult(JWT::encode(['id' => $user->getId()], $_ENV['JWT_KEY']));
+    }
+
+    public function login(UserLoginCommand $command): ?UserLoginResult
+    {
+        $user = $this->userRepository->findByEmail($command->getEmail());
+        return password_verify($command->getPassword(), $user === null ? '': $user->getPassword())
+            ? new UserLoginResult(JWT::encode(['id' => $user->getId()], $_ENV['JWT_KEY']))
+            : null;
     }
 }

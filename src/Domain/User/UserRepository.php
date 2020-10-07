@@ -29,4 +29,10 @@ interface UserRepository
      * @param User $user
      */
     public function save(User  $user);
+
+    /**
+     * @param string $email
+     * @return User|null
+     */
+    public function findByEmail(string $email): ?User;
 }
