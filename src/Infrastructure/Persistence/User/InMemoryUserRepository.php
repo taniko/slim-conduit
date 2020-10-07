@@ -95,4 +95,19 @@ class InMemoryUserRepository implements UserRepository
             $this->users[] = $user;
         }
     }
+
+    /**
+     * @param string $email
+     * @return User|null
+     */
+    public function findByEmail(string $email): ?User
+    {
+        $user = null;
+        foreach ($this->users as $v) {
+            if ($v->getEmail() === $email) {
+                $user = $v;
+            }
+        }
+        return $user;
+    }
 }
