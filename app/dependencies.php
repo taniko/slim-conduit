@@ -1,9 +1,10 @@
 <?php
 declare(strict_types=1);
 
+use App\Domain\Model\Article\ArticleFactory;
 use App\Domain\Service\UserService;
 use App\Domain\User\UserFactoryInterface;
-use App\Domain\User\UserRepository;
+use App\Infrastructure\Persistence\Article\InMemoryArticleFactory;
 use App\Infrastructure\Persistence\User\InMemoryUserFactory;
 use DI\ContainerBuilder;
 use Monolog\Handler\StreamHandler;
@@ -34,5 +35,6 @@ return function (ContainerBuilder $containerBuilder) {
         UserFactoryInterface::class => function (ContainerInterface $container) {
             return new InMemoryUserFactory();
         },
+        ArticleFactory::class       => fn(ContainerInterface $container) => new InMemoryArticleFactory(),
     ]);
 };
