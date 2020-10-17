@@ -4,6 +4,7 @@
 namespace App\Infrastructure\Persistence\Article;
 
 
+use App\Domain\DomainException\DomainRecordNotFoundException;
 use App\Domain\Model\Article\Article;
 use App\Domain\Model\Article\ArticleRepository;
 
@@ -19,7 +20,6 @@ class InMemoryArticleRepository implements ArticleRepository
         foreach ($this->articles as $i => $item) {
             if ($article->getId() === $item->getId()) {
                 $this->articles[$i] = $article;
-                $found              = true;
                 break;
             }
         }
@@ -30,7 +30,12 @@ class InMemoryArticleRepository implements ArticleRepository
         return $article;
     }
 
-    public function findById(int $id): ?Article
+    /**
+     * @param int $id
+     * @return Article
+     * @throws DomainRecordNotFoundException
+     */
+    public function findById(int $id): Article
     {
         $article = null;
         foreach ($this->articles as $i => $item) {
@@ -39,6 +44,23 @@ class InMemoryArticleRepository implements ArticleRepository
                 break;
             }
         }
+        if ($article === null) {
+            throw new DomainRecordNotFoundException();
+        }
         return $article;
+    }
+
+    /**
+     * @param int $id
+     */
+    public function delete(int $id)
+    {
+        foreach ($this->articles as $i => $article) {
+            if ($article->getId() === $id) {
+                unset($this->articles[$i]);
+                break;
+            }
+        }
+        $this->articles = array_values($this->articles);
     }
 }

@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Domain\Model\Article;
 
 
@@ -43,9 +42,9 @@ class Article
     }
 
     /**
-     * @return string
+     * @return int
      */
-    public function getId(): string
+    public function getId(): int
     {
         return $this->id;
     }

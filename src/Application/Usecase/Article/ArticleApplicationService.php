@@ -6,18 +6,16 @@ namespace App\Application\Usecase\Article;
 
 use App\Application\Usecase\Article\Create\CreateArticleCommand;
 use App\Application\Usecase\Article\Create\CreateArticleResult;
-use App\Domain\Model\Article\Article;
+use App\Application\Usecase\Article\Delete\DeleteArticleCommand;
+use App\Application\Usecase\UsecaseException\ForbiddenException;
+use App\Domain\DomainException\DomainRecordNotFoundException;
 use App\Domain\Model\Article\ArticleFactory;
 use App\Domain\Model\Article\ArticleRepository;
 use App\Domain\Model\Article\ArticleService;
-use App\Domain\Model\Article\Body;
-use App\Domain\Model\Article\Title;
 use App\Domain\Model\Tag\Name;
 use App\Domain\Model\Tag\Tag;
 use App\Domain\Model\Tag\TagRepository;
-use Cake\Chronos\Chronos;
 use Exception;
-use Illuminate\Support\Collection;
 
 class ArticleApplicationService
 {
@@ -71,5 +69,17 @@ class ArticleApplicationService
             $tags,
         ));
         return new CreateArticleResult($article);
+    }
+
+    /**
+     * @param DeleteArticleCommand $command
+     * @throws ForbiddenException|DomainRecordNotFoundException
+     */
+    public function delete(DeleteArticleCommand $command)
+    {
+        $article = $this->articleRepository->findById($command->getArticleId());
+        if ($article->getUserId() !== $command->getUserId()) {
+            throw new ForbiddenException();
+        }
     }
 }
