@@ -26,6 +26,7 @@ class InMemoryArticleRepository implements ArticleRepository
         if (!$found) {
             $article->setId($this->id);
             $this->articles[] = $article;
+            $this->id += 1;
         }
         return $article;
     }
@@ -62,5 +63,10 @@ class InMemoryArticleRepository implements ArticleRepository
             }
         }
         $this->articles = array_values($this->articles);
+    }
+
+    public function getAllByLatest(): array
+    {
+        return array_reverse($this->articles);
     }
 }

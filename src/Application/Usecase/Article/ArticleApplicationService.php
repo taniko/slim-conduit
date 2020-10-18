@@ -7,8 +7,10 @@ namespace App\Application\Usecase\Article;
 use App\Application\Usecase\Article\Create\CreateArticleCommand;
 use App\Application\Usecase\Article\Create\CreateArticleResult;
 use App\Application\Usecase\Article\Delete\DeleteArticleCommand;
+use App\Application\Usecase\Article\Get\GetArticleQuery;
 use App\Application\Usecase\UsecaseException\ForbiddenException;
 use App\Domain\DomainException\DomainRecordNotFoundException;
+use App\Domain\Model\Article\Article;
 use App\Domain\Model\Article\ArticleFactory;
 use App\Domain\Model\Article\ArticleRepository;
 use App\Domain\Model\Article\ArticleService;
@@ -81,5 +83,23 @@ class ArticleApplicationService
         if ($article->getUserId() !== $command->getUserId()) {
             throw new ForbiddenException();
         }
+    }
+
+    /**
+     * @param GetArticleQuery $query
+     * @return Article
+     * @throws DomainRecordNotFoundException
+     */
+    public function get(GetArticleQuery $query): Article
+    {
+        return $this->articleRepository->findById($query->getId());
+    }
+
+    /**
+     * @return Article[]
+     */
+    public function getArticlesOrderByLatest(): array
+    {
+        return $this->articleRepository->getAllByLatest();
     }
 }
