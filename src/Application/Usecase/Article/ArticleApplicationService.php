@@ -7,11 +7,17 @@ namespace App\Application\Usecase\Article;
 use App\Application\Usecase\Article\Create\CreateArticleCommand;
 use App\Application\Usecase\Article\Create\CreateArticleResult;
 use App\Application\Usecase\Article\Delete\DeleteArticleCommand;
+use App\Application\Usecase\Article\Get\GetArticleQuery;
+use App\Application\Usecase\Article\Update\UpdateArticleCommand;
+use App\Application\Usecase\Article\Update\UpdateArticleResult;
 use App\Application\Usecase\UsecaseException\ForbiddenException;
 use App\Domain\DomainException\DomainRecordNotFoundException;
+use App\Domain\Model\Article\Article;
 use App\Domain\Model\Article\ArticleFactory;
 use App\Domain\Model\Article\ArticleRepository;
 use App\Domain\Model\Article\ArticleService;
+use App\Domain\Model\Article\Body;
+use App\Domain\Model\Article\Title;
 use App\Domain\Model\Tag\Name;
 use App\Domain\Model\Tag\Tag;
 use App\Domain\Model\Tag\TagRepository;
@@ -81,5 +87,55 @@ class ArticleApplicationService
         if ($article->getUserId() !== $command->getUserId()) {
             throw new ForbiddenException();
         }
+    }
+
+    /**
+     * @param GetArticleQuery $query
+     * @return Article
+     * @throws DomainRecordNotFoundException
+     */
+    public function get(GetArticleQuery $query): Article
+    {
+        return $this->articleRepository->findById($query->getId());
+    }
+
+    /**
+     * @return Article[]
+     */
+    public function getArticlesOrderByLatest(): array
+    {
+        return $this->articleRepository->getAllByLatest();
+    }
+
+    /**
+     * @param UpdateArticleCommand $command
+     * @return UpdateArticleResult
+     * @throws DomainRecordNotFoundException
+     * @throws ForbiddenException
+     * @throws Exception
+     */
+    public function update(UpdateArticleCommand $command): UpdateArticleResult
+    {
+        $article = $this->articleRepository->findById($command->getArticleId());
+        if ($article->getUserId() !== $command->getUserId()) {
+            throw new ForbiddenException();
+        }
+        $tags = $this->tagRepository->findByNames($command->getTags());
+        $names = array_map(fn(Tag $tag) => $tag->getName(), $tags);
+        foreach ($command->getTags() as $name) {
+            if (!in_array($name, $names, true)) {
+                $tags[] = $this->tagRepository->save(new Tag(null, new Name($name)));
+            }
+        }
+        $article = $this->articleRepository->save(new Article(
+            $command->getArticleId(),
+            $command->getUserId(),
+            new Title($command->getTitle()),
+            new Body($command->getBody()),
+            $tags,
+            $article->getDatetime(),
+        ));
+        $article = $this->articleRepository->save($article);
+        return new UpdateArticleResult($article);
     }
 }

@@ -18,4 +18,6 @@ interface ArticleRepository
     public function findById(int $id): Article;
 
     public function delete(int $id);
+
+    public function getAllByLatest(): array;
 }
